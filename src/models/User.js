@@ -23,6 +23,10 @@ export const User = sequelize.define("usuario", {
             isEmail: true,
         },
     },
+    password: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
     rol: {
         type: DataTypes.ENUM('superadmin', 'admin', 'user'),
         allowNull: false,

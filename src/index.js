@@ -10,8 +10,8 @@ const app = express();
 try {
 
     await sequelize.authenticate();
-    await sequelize.sync()
 
+    app.use(express.json());
     app.use(userRoutes);
 
     app.listen(PORT, () => {
