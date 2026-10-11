@@ -20,9 +20,21 @@ export const findUser = async (req, res) => {
 export const createUser = async (req, res) => {
     const { nombre, apellido, email, password } = req.body;
 
+    const emaillower = email.trim().toLowerCase();
+    
+    const existingUser = await User.findOne({
+        where: { email: emaillower},
+    });
+
+    if (existingUser) {
+        res.status(400).send({ message: "El mail ya se encuentra registrado." });
+    }
+
     if (!nombre || !apellido || !email || !password ) {
         res.status(400).send({ message: "El nombre, apellido, email y password son datos obligatorios." });
     }
+
+    
 
     const newUser = await User.create( {
         nombre,
@@ -31,7 +43,10 @@ export const createUser = async (req, res) => {
         password
     });
 
-    res.status(201).json(`Usuario creado correctamente: ${newUser}`);
+    res.status(201).json({
+        message: "Usuario creado correctamente",
+        usuario: `${newUser.nombre}  ${newUser.apellido}`
+    });
 }
 
 export const updateUser = async (req, res) => {
