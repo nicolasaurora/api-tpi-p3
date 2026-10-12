@@ -2,8 +2,10 @@ import express from 'express';
 import "./models/associations.js";
 
 import { PORT } from './config/config.js';
-import userRoutes from './routes/user.routes.js';
 import { sequelize } from './config/db.js';
+
+import userRoutes from './routes/user.routes.js';
+import productRoutes from './routes/product.routes.js';
 
 const app = express();
 
@@ -12,7 +14,7 @@ try {
     await sequelize.authenticate();
 
     app.use(express.json());
-    app.use(userRoutes);
+    app.use(userRoutes, productRoutes);
 
     app.listen(PORT, () => {
         console.log(`Servidor escuchando en puerto ${PORT}`);

@@ -20,10 +20,10 @@ export const findUser = async (req, res) => {
 export const createUser = async (req, res) => {
     const { nombre, apellido, email, password } = req.body;
 
-    const emaillower = email.trim().toLowerCase();
+    const emailLower = email.trim().toLowerCase();
     
     const existingUser = await User.findOne({
-        where: { email: emaillower},
+        where: { email: emailLower},
     });
 
     if (existingUser) {
@@ -34,7 +34,6 @@ export const createUser = async (req, res) => {
         res.status(400).send({ message: "El nombre, apellido, email y password son datos obligatorios." });
     }
 
-    
 
     const newUser = await User.create( {
         nombre,

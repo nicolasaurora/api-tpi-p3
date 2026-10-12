@@ -10,6 +10,7 @@ export const Product = sequelize.define("producto", {
     nombre: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
     },
     precio: {
         type: DataTypes.DECIMAL(10, 2),
@@ -20,7 +21,6 @@ export const Product = sequelize.define("producto", {
     },
     stock: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         defaultValue: 0,
         validate: {
             min: 0,
