@@ -54,6 +54,12 @@ export const updateUser = async (req, res) => {
 
     const user = await User.findByPk(id);
 
+    if(!user) {
+        res.status(400).send({
+            message: "El usuario no existe."
+        });
+    }
+
     await user.update({
         nombre,
         apellido,
@@ -61,7 +67,7 @@ export const updateUser = async (req, res) => {
         password
     });
 
-    res.json(`Usuario actualizado: ${user}`);
+    res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
 }
 
 export const deleteUser = async (req, res) => {
@@ -70,5 +76,7 @@ export const deleteUser = async (req, res) => {
 
     await user.destroy();
 
-    res.send(`Usuario con id: ${id} eliminado.`);
+    res.status(204).send({
+        message: `Usuario con id: ${id} eliminado.`
+    });
 }

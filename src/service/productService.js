@@ -12,7 +12,7 @@ export const findProduct = async (req, res) => {
     const product = await Product.findByPk(id);
 
     if(!product) {
-        res.status(400).send({
+        res.status(404).send({
             message: "Producto no encontrado."
         });
     }
@@ -22,6 +22,12 @@ export const findProduct = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     const { nombre, precio, stock } = req.body;
+
+    if (!nombre || precio === undefined) {
+        res.status(400).send({
+            message: "El nombre y el precio son datos obligatorios."
+        });
+    }    
     
     const nombreLower = nombre.trim().toLowerCase();
 
@@ -35,11 +41,6 @@ export const createProduct = async (req, res) => {
         });
     }
 
-    if (!nombre || !precio) {
-        res.status(400).send({
-            message: "El nombre y el precio son datos obligatorios."
-        });
-    }
 
     const newProduct = await Product.create({
         nombre,
@@ -54,3 +55,44 @@ export const createProduct = async (req, res) => {
     });
 }
 
+
+export const updateProduct = async (req, res) => {
+    const { id } = req.params;
+    const product = await Product.findByPk(id)
+    const { nombre, precio, stock } = req.body;
+
+    if(!product) {
+        res.status(400).send({
+            message: "El producto no existe."
+        });
+    }
+
+    
+    await product.update({
+        nombre,
+        precio,
+        stock
+    });
+
+    res.status(200).send({
+        message: `Producto actualizado: ${product.nombre}.`
+    });
+
+}
+
+export const deleteProduct = async(req, res) => {
+    const { id } = req.params;
+    const product = await Product.findByPk(id);
+
+    if(!product) {
+        res.status(400).send({
+            message: "El producto no existe."
+        });
+    }
+
+    await product.destroy();
+
+    res.status(204).send({
+        message: `Producto con id: ${id} eliminado.`
+    });
+}
