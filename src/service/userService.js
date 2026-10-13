@@ -2,81 +2,101 @@ import { User } from "../models/User.js";
 
 
 export const findUsers = async (req, res) => {
-    const users = await User.findAll();
-    res.json(users);
+    try {
+        const users = await User.findAll();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener usuarios." });
+    }
 };
 
 export const findUser = async (req, res) => {
-    const { id } = req.params;
-    const user = await User.findByPk(id);
+    try {
+        const { id } = req.params;
+        const user = await User.findByPk(id);
 
-    if (!user) {
-        res.status(404).send({ message: "Usuario no encontrado." });
+        if (!user) {
+            res.status(404).send({ message: "Usuario no encontrado." });
+        }
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Error al obtener el usuario." });
     }
-
-    res.json(user);
 }
 
 export const createUser = async (req, res) => {
-    const { nombre, apellido, email, password } = req.body;
+    try {
+        const { nombre, apellido, email, password } = req.body;
 
-    const emailLower = email.trim().toLowerCase();
-    
-    const existingUser = await User.findOne({
-        where: { email: emailLower},
-    });
+        const emailLower = email.trim().toLowerCase();
+        
+        const existingUser = await User.findOne({
+            where: { email: emailLower},
+        });
 
-    if (existingUser) {
-        res.status(400).send({ message: "El mail ya se encuentra registrado." });
+        if (existingUser) {
+            res.status(400).send({ message: "El mail ya se encuentra registrado." });
+        }
+
+        if (!nombre || !apellido || !email || !password ) {
+            res.status(400).send({ message: "El nombre, apellido, email y password son datos obligatorios." });
+        }
+
+
+        const newUser = await User.create( {
+            nombre,
+            apellido,
+            email,
+            password
+        });
+
+        res.status(201).json({
+            message: "Usuario creado correctamente",
+            usuario: `${newUser.nombre}  ${newUser.apellido}`
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error al crear el usuario." });
     }
-
-    if (!nombre || !apellido || !email || !password ) {
-        res.status(400).send({ message: "El nombre, apellido, email y password son datos obligatorios." });
-    }
-
-
-    const newUser = await User.create( {
-        nombre,
-        apellido,
-        email,
-        password
-    });
-
-    res.status(201).json({
-        message: "Usuario creado correctamente",
-        usuario: `${newUser.nombre}  ${newUser.apellido}`
-    });
 }
 
 export const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { nombre, apellido, email, password} = req.body;
+    try {
+        const { id } = req.params;
+        const { nombre, apellido, email, password} = req.body;
 
-    const user = await User.findByPk(id);
+        const user = await User.findByPk(id);
 
-    if(!user) {
-        res.status(400).send({
-            message: "El usuario no existe."
+        if(!user) {
+            res.status(400).send({
+                message: "El usuario no existe."
+            });
+        }
+
+        await user.update({
+            nombre,
+            apellido,
+            email,
+            password
         });
+
+        res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar el usuario." });
     }
-
-    await user.update({
-        nombre,
-        apellido,
-        email,
-        password
-    });
-
-    res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
 }
 
 export const deleteUser = async (req, res) => {
-    const { id } = req.params;
-    const user = await User.findByPk(id);
+    try {
+        const { id } = req.params;
+        const user = await User.findByPk(id);
 
-    await user.destroy();
+        await user.destroy();
 
-    res.status(204).send({
-        message: `Usuario con id: ${id} eliminado.`
-    });
+        res.status(204).send({
+            message: `Usuario con id: ${id} eliminado.`
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error al eliminar el usuario." });
+    }
 }
