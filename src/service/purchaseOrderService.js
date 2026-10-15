@@ -7,7 +7,14 @@ import { sequelize } from "../config/db.js";
 
 export const getPurchaseOrders = async (req, res) => {
     try {
-        const purchaseOrders = await PurchaseOrder.findAll();
+        const purchaseOrders = await PurchaseOrder.findAll({
+          include: [
+            {
+              model: User,
+              attributes: ["nombre", "apellido"],
+            },
+          ],
+        });
 
         res.json(purchaseOrders);
     } catch (error) {
@@ -16,6 +23,46 @@ export const getPurchaseOrders = async (req, res) => {
         });
     }
 }
+
+
+export const getPurchaseOrder = async(req, res) => {
+  try {
+    const { id } = req.params;
+
+    const purchaseOrder = await PurchaseOrder.findByPk(id, {
+      include: [
+        {
+          model: User,
+          attributes: ["nombre", "apellido"],
+        },
+        {
+          model: OrderDetails,
+          attributes: ["cantidad", "precio_unitario"],
+          include: [
+            {
+              model: Product,
+              attributes: ["id", "nombre"],
+            }  
+          ],
+        }
+      ]
+    });
+
+    if(!purchaseOrder) {
+      res.status(404).send({
+        message: "La orden de compra no existe."
+      });
+    }
+
+    res.json(purchaseOrder);
+
+  } catch (error) {
+    return res.status(500).send({
+      message: "Error al obtener la orden de compra."
+    });
+  }
+}
+
 
 export const createPurchaseOrder = async (req, res) => {
   const { usuario_id, items } = req.body;
@@ -47,11 +94,8 @@ export const createPurchaseOrder = async (req, res) => {
     for (const item of items) {
       const { producto_id, cantidad } = item;
 
-      if (
-        !producto_id ||
-        !Number.isInteger(cantidad) ||
-        cantidad <= 0
-      ) {
+      if (!producto_id || !Number.isInteger(cantidad) || cantidad <= 0) {
+
         await transaction.rollback();
 
         return res.status(400).json({
@@ -132,3 +176,5 @@ export const createPurchaseOrder = async (req, res) => {
   }
 
 }
+
+

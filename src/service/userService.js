@@ -54,7 +54,7 @@ export const createUser = async (req, res) => {
         const newUser = await User.create( {
             nombre,
             apellido,
-            email,
+            email: emailLower,
             password
         });
 

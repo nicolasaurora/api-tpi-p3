@@ -6,6 +6,7 @@ import { sequelize } from './config/db.js';
 
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
+import purchaseOrderRoutes from './routes/purchaseOrder.routes.js';
 
 const app = express();
 
@@ -15,7 +16,7 @@ try {
     await sequelize.sync();
 
     app.use(express.json());
-    app.use(userRoutes, productRoutes);
+    app.use(userRoutes, productRoutes, purchaseOrderRoutes);
 
     app.listen(PORT, () => {
         console.log(`Servidor escuchando en puerto ${PORT}`);

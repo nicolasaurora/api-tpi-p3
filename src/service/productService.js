@@ -7,7 +7,7 @@ export const getProducts = async (req, res) => {
         res.json(products);
     } catch (error) {
         return res.status(500).json({
-            message: `Error al otener productos. ${error}.`
+            message: "Error al obtener productos."
         })
     }
 };
@@ -25,9 +25,10 @@ export const getProduct = async (req, res) => {
         }
 
         res.json(product);
+
     } catch (error) {
         return res.status(500).json({
-            message: `Error al otener el producto. ${error}.`
+            message: "Error al obtener el producto."
         })
     }
 };
@@ -56,7 +57,7 @@ export const createProduct = async (req, res) => {
 
 
         const newProduct = await Product.create({
-            nombre,
+            nombre: nombreLower,
             precio,
             stock
         });
@@ -68,8 +69,8 @@ export const createProduct = async (req, res) => {
         });
     } catch (error) {
         return res.status(500).json({
-            message: `Error al crear el producto. ${error}.`
-        })
+            message: "Error al crear el producto."
+        });
     }
 }
 
@@ -98,7 +99,7 @@ export const updateProduct = async (req, res) => {
         });
     } catch (error) {
        return res.status(500).json({
-            message: `Error al actualizar el producto. ${error}.`
+            message: "Error al actualizar el producto."
         })
     }
 
@@ -122,7 +123,7 @@ export const deleteProduct = async(req, res) => {
         });
     } catch (error) {
        return res.status(500).json({
-            message: `Error al eliminar producto. ${error}.`
+            message: "Error al eliminar el producto."
         })
     }
 }
