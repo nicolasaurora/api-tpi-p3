@@ -1,30 +1,34 @@
 import { Product } from '../models/Product.js';
 
-export const findProducts = async (req, res) => {
+export const getProducts = async (req, res) => {
     try {
         const products = await Product.findAll();
 
         res.json(products);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener productos." });
+        return res.status(500).json({
+            message: `Error al otener productos. ${error}.`
+        })
     }
 };
 
-export const findProduct = async (req, res) => {
+export const getProduct = async (req, res) => {
     try {
         const { id } = req.params;
 
         const product = await Product.findByPk(id);
 
         if(!product) {
-            res.status(404).send({
+            return res.status(404).json({
                 message: "Producto no encontrado."
             });
         }
 
         res.json(product);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener el producto." });
+        return res.status(500).json({
+            message: `Error al otener el producto. ${error}.`
+        })
     }
 };
 
@@ -33,7 +37,7 @@ export const createProduct = async (req, res) => {
         const { nombre, precio, stock } = req.body;
 
         if (!nombre || precio === undefined) {
-            res.status(400).send({
+            return res.status(400).json({
                 message: "El nombre y el precio son datos obligatorios."
             });
         }    
@@ -45,7 +49,7 @@ export const createProduct = async (req, res) => {
         });
 
         if(existingNombre) {
-            res.status(400).send( {
+            return res.status(400).json( {
                 message: "El producto ya existe."
             });
         }
@@ -58,12 +62,14 @@ export const createProduct = async (req, res) => {
         });
 
 
-        res.status(201).send({
+        res.status(201).json({
             message: "Producto creado correctamente.",
             Producto: `${newProduct.nombre}`
         });
     } catch (error) {
-        res.status(500).json({ message: "Error al crear el producto." });
+        return res.status(500).json({
+            message: `Error al crear el producto. ${error}.`
+        })
     }
 }
 
@@ -75,7 +81,7 @@ export const updateProduct = async (req, res) => {
         const { nombre, precio, stock } = req.body;
 
         if(!product) {
-            res.status(400).send({
+            return res.status(400).json({
                 message: "El producto no existe."
             });
         }
@@ -87,11 +93,13 @@ export const updateProduct = async (req, res) => {
             stock
         });
 
-        res.status(200).send({
+        res.status(200).json({
             message: `Producto actualizado: ${product.nombre}.`
         });
     } catch (error) {
-        res.status(500).json({ message: "Error al actualizar el producto." });
+       return res.status(500).json({
+            message: `Error al actualizar el producto. ${error}.`
+        })
     }
 
 }
@@ -102,17 +110,19 @@ export const deleteProduct = async(req, res) => {
         const product = await Product.findByPk(id);
 
         if(!product) {
-            res.status(400).send({
+           return res.status(400).json({
                 message: "El producto no existe."
             });
         }
 
         await product.destroy();
 
-        res.status(204).send({
+        res.status(200).json({
             message: `Producto con id: ${id} eliminado.`
         });
     } catch (error) {
-        res.status(500).json({ message: "Error al eliminar el producto." });
+       return res.status(500).json({
+            message: `Error al eliminar producto. ${error}.`
+        })
     }
 }

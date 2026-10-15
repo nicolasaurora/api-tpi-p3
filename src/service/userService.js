@@ -1,33 +1,43 @@
 import { User } from "../models/User.js";
 
 
-export const findUsers = async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
-        const users = await User.findAll();
+        const users = await User.findAll({
+            attributes: { exclude: ["password"] },
+        });
         res.json(users);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener usuarios." });
+        return res.status(500).send({ message: "Error al obtener usuarios." });
     }
 };
 
-export const findUser = async (req, res) => {
+export const getUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id, {
+            attributes: { exclude: ["password"] },
+        });
 
         if (!user) {
-            res.status(404).send({ message: "Usuario no encontrado." });
+            return res.status(404).send({ message: "Usuario no encontrado." });
         }
 
         res.json(user);
     } catch (error) {
-        res.status(500).json({ message: "Error al obtener el usuario." });
+        return res.status(500).send({ message: "Error al obtener el usuario." });
     }
 }
 
 export const createUser = async (req, res) => {
     try {
         const { nombre, apellido, email, password } = req.body;
+
+        if (!nombre || !apellido || !email || !password ) {
+           return res.status(400).send({ 
+            message: "El nombre, apellido, email y password son datos obligatorios." 
+            });
+        }
 
         const emailLower = email.trim().toLowerCase();
         
@@ -36,13 +46,10 @@ export const createUser = async (req, res) => {
         });
 
         if (existingUser) {
-            res.status(400).send({ message: "El mail ya se encuentra registrado." });
+            return res.status(400).json({
+                message: "El mail ya se encuentra registrado." 
+            });
         }
-
-        if (!nombre || !apellido || !email || !password ) {
-            res.status(400).send({ message: "El nombre, apellido, email y password son datos obligatorios." });
-        }
-
 
         const newUser = await User.create( {
             nombre,
@@ -56,7 +63,9 @@ export const createUser = async (req, res) => {
             usuario: `${newUser.nombre}  ${newUser.apellido}`
         });
     } catch (error) {
-        res.status(500).json({ message: "Error al crear el usuario." });
+        return res.status(500).json({
+            message: "Error al crear el usuario." 
+        });
     }
 }
 
@@ -68,7 +77,7 @@ export const updateUser = async (req, res) => {
         const user = await User.findByPk(id);
 
         if(!user) {
-            res.status(400).send({
+            return res.status(400).json({
                 message: "El usuario no existe."
             });
         }
@@ -82,7 +91,7 @@ export const updateUser = async (req, res) => {
 
         res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
     } catch (error) {
-        res.status(500).json({ message: "Error al actualizar el usuario." });
+        return res.status(500).json({ message: "Error al actualizar el usuario." });
     }
 }
 
@@ -90,13 +99,17 @@ export const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findByPk(id);
-
+        if(!user) {
+            return res.status(400).json({
+                message: "El usuario no existe."
+            });
+        }
         await user.destroy();
 
-        res.status(204).send({
+        res.status(200).json({
             message: `Usuario con id: ${id} eliminado.`
         });
     } catch (error) {
-        res.status(500).json({ message: "Error al eliminar el usuario." });
+        return res.status(500).json({ message: "Error al eliminar el usuario." });
     }
 }
