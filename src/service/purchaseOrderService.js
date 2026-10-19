@@ -18,11 +18,36 @@ export const getPurchaseOrders = async (req, res) => {
 
         res.json(purchaseOrders);
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             message: "Error al obtener ordenes de compra."
         });
     }
 }
+
+export const getMyPurchaseOrders = async (req, res) => {
+  try {
+    const usuario_id = req.user.id;
+
+    if (!usuario_id) {
+      return res.status(401).json({
+        message: "El token no contiene un usuario válido. Iniciá sesión nuevamente."
+      });
+    }
+
+    const ordenes = await PurchaseOrder.findAll({
+      where: {
+        usuario_id: usuario_id
+      }
+    });
+
+    return res.json(ordenes);
+    
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener tus órdenes de compra."
+    });
+  }
+};
 
 
 export const getPurchaseOrder = async(req, res) => {
@@ -49,8 +74,18 @@ export const getPurchaseOrder = async(req, res) => {
     });
 
     if(!purchaseOrder) {
-      res.status(404).send({
+      return res.status(404).send({
         message: "La orden de compra no existe."
+      });
+    }
+
+    const esAdministrador = req.user.rol === "admin" || req.user.rol === "superadmin";
+
+    const esPropietario = purchaseOrder.usuario_id === req.user.id;
+
+    if(!esAdministrador && !esPropietario) {
+      return res.status(403).send({
+        message: "No tenés permiso para ver esta orden."
       });
     }
 
@@ -65,7 +100,8 @@ export const getPurchaseOrder = async(req, res) => {
 
 
 export const createPurchaseOrder = async (req, res) => {
-  const { usuario_id, items } = req.body;
+  const { items } = req.body;
+  const usuario_id = req.user.id;
 
   if (!usuario_id || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({

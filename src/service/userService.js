@@ -1,4 +1,6 @@
 import { User } from "../models/User.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 
 export const getUsers = async (req, res) => {
@@ -51,11 +53,17 @@ export const createUser = async (req, res) => {
             });
         }
 
+        const saltRounds = 10;
+
+        const salt = await bcrypt.genSalt(saltRounds);
+
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const newUser = await User.create( {
             nombre,
             apellido,
             email: emailLower,
-            password
+            password: hashedPassword,
         });
 
         res.status(201).json({
@@ -82,11 +90,17 @@ export const updateUser = async (req, res) => {
             });
         }
 
+        const saltRounds = 10;
+
+        const salt = await bcrypt.genSalt(saltRounds);
+
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         await user.update({
             nombre,
             apellido,
             email,
-            password
+            password: hashedPassword,
         });
 
         res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
@@ -112,4 +126,37 @@ export const deleteUser = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: "Error al eliminar el usuario." });
     }
+}
+
+
+
+export const loginUser = async (req,res) => {
+    const { email, password } = req.body;
+
+    const emailLower = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+        where: { email: emailLower }
+    });
+
+    if(!user) {
+        return res.status(401).send({
+            message: "Usuario no existente."
+        });
+    }
+
+    const coincide = await bcrypt.compare(password, user.password);
+
+    if(!coincide) {
+        return res.status(401).send({
+            message: "Email y/o contraseña incorrecta."
+        })
+    }
+
+    const secretKey = 'programacion-3-2026';
+
+    const token = jwt.sign({ id: user.id, email, rol: user.rol }, secretKey, { expiresIn: '3h' });
+
+    return res.json(token);
+
 }
