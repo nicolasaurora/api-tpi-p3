@@ -30,7 +30,7 @@ export const getMyPurchaseOrders = async (req, res) => {
 
     if (!usuario_id) {
       return res.status(401).json({
-        message: "El token no contiene un usuario válido. Iniciá sesión nuevamente."
+        message: "El token no contiene un usuario válido. Inicia sesión nuevamente."
       });
     }
 
