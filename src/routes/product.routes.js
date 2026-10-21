@@ -4,15 +4,15 @@ import { verifyToken, verifyRole } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/productos", getProducts);
+router.get("/products", getProducts);
 
-router.get("/productos/:id", getProduct);
+router.get("/products/:id", getProduct);
 
-router.post("/productos",verifyToken,verifyRole("superadmin", "admin"), createProduct);
+router.post("/products", verifyToken, verifyRole("superadmin", "admin"), createProduct);
 
-router.put("/productos/:id", verifyToken,verifyRole("superadmin", "admin"), updateProduct);
+router.put("/products/:id", verifyToken, verifyRole("superadmin", "admin"), updateProduct);
 
-router.delete("/productos/:id", verifyToken,verifyRole("superadmin", "admin"), deleteProduct);
+router.delete("/products/:id", verifyToken, verifyRole("superadmin", "admin"), deleteProduct);
 
 
 

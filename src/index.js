@@ -3,6 +3,7 @@ import "./models/associations.js";
 
 import { PORT } from './config/config.js';
 import { sequelize } from './config/db.js';
+import cors from "cors";
 
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
@@ -16,6 +17,11 @@ try {
     await sequelize.sync();
 
     app.use(express.json());
+    
+    app.use(cors({
+        origin: "http://localhost:5173",
+    }));
+    
     app.use(userRoutes, productRoutes, purchaseOrderRoutes);
 
     app.listen(PORT, () => {

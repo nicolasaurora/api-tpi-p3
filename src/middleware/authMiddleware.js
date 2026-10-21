@@ -26,7 +26,7 @@ export const verifyToken = (req, res, next) => {
 
 export const verifyRole = (...rolesPermitidos) => {
     return (req, res, next) => {
-        if (!req.user || !rolesPermitidos.includes(req.user.rol)) {
+        if (!req.user || !rolesPermitidos.includes(req.user.role)) {
             return res.status(403).json({
                 message: "No tenés permisos para realizar esta acción."
             });

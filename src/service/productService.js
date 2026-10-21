@@ -35,21 +35,22 @@ export const getProduct = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
-        const { nombre, precio, stock } = req.body;
+        const { name, price, stock, image, category } = req.body;
 
-        if (!nombre || precio === undefined) {
+        if (!name || price === undefined || !image || !category) {
             return res.status(400).json({
-                message: "El nombre y el precio son datos obligatorios."
+                message: "El nombre, precio, imagen y categoría son datos obligatorios."
             });
         }    
         
-        const nombreLower = nombre.trim().toLowerCase();
+        const nameLower = name.trim().toLowerCase();
+        const categoryLower = category.trim().toLowerCase();
 
-        const existingNombre = await Product.findOne({
-            where: { nombre: nombreLower }
+        const existingProduct = await Product.findOne({
+            where: { name: nameLower }
         });
 
-        if(existingNombre) {
+        if(existingProduct) {
             return res.status(400).json( {
                 message: "El producto ya existe."
             });
@@ -57,15 +58,17 @@ export const createProduct = async (req, res) => {
 
 
         const newProduct = await Product.create({
-            nombre: nombreLower,
-            precio,
-            stock
+            name: nameLower,
+            price,
+            stock,
+            image,
+            category: categoryLower,
         });
 
 
         res.status(201).json({
             message: "Producto creado correctamente.",
-            Producto: `${newProduct.nombre}`
+            product: `${newProduct.name}`
         });
     } catch (error) {
         return res.status(500).json({
@@ -79,7 +82,7 @@ export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const product = await Product.findByPk(id)
-        const { nombre, precio, stock } = req.body;
+        const { name, price, stock, image, category } = req.body;
 
         if(!product) {
             return res.status(400).json({
@@ -89,13 +92,15 @@ export const updateProduct = async (req, res) => {
 
         
         await product.update({
-            nombre,
-            precio,
-            stock
+            name,
+            price,
+            stock,
+            image,
+            category,
         });
 
         res.status(200).json({
-            message: `Producto actualizado: ${product.nombre}.`
+            message: `Producto actualizado: ${product.name}.`
         });
     } catch (error) {
        return res.status(500).json({

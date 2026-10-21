@@ -5,31 +5,37 @@ import { OrderDetails } from "./OrderDetails.js";
 
 // Usuario 1 — N Orden de compra
 User.hasMany(PurchaseOrder, {
-  foreignKey: "usuario_id",
+  foreignKey: "userId",
+  as: "purchaseOrders",
 });
 
 PurchaseOrder.belongsTo(User, {
-  foreignKey: "usuario_id",
+  foreignKey: "userId",
+  as: "user",
 });
 
 
 
 // Orden de compra 1 — N Detalle de orden
 PurchaseOrder.hasMany(OrderDetails, {
-  foreignKey: "orden_de_compra_id",
+  foreignKey: "purchaseOrderId",
+  as: "orderDetails",
 });
 
 OrderDetails.belongsTo(PurchaseOrder, {
-  foreignKey: "orden_de_compra_id",
+  foreignKey: "purchaseOrderId",
+  as: "purchaseOrder",
 });
 
 
 
 // Producto 1 — N Detalle de orden
 Product.hasMany(OrderDetails, {
-  foreignKey: "producto_id",
+  foreignKey: "productId",
+  as: "orderDetails",
 });
 
 OrderDetails.belongsTo(Product, {
-  foreignKey: "producto_id",
+  foreignKey: "productId",
+  as: "product",
 });

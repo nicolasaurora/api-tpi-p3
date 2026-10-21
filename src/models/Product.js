@@ -1,18 +1,18 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
 
-export const Product = sequelize.define("producto", {
+export const Product = sequelize.define("product", {
     id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     },
-    nombre: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
     },
-    precio: {
+    price: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
         validate: {
@@ -27,4 +27,17 @@ export const Product = sequelize.define("producto", {
             min: 0,
         },
     },
+    image: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            isUrl: true,
+        },
+    },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+}, {
+    tableName: "products",
 });

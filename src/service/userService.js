@@ -33,9 +33,9 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
     try {
-        const { nombre, apellido, email, password } = req.body;
+        const { firstName, lastName, email, password } = req.body;
 
-        if (!nombre || !apellido || !email || !password ) {
+        if (!firstName || !lastName || !email || !password ) {
            return res.status(400).send({ 
             message: "El nombre, apellido, email y password son datos obligatorios." 
             });
@@ -60,15 +60,15 @@ export const createUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = await User.create( {
-            nombre,
-            apellido,
+            firstName,
+            lastName,
             email: emailLower,
             password: hashedPassword,
         });
 
         res.status(201).json({
             message: "Usuario creado correctamente",
-            usuario: `${newUser.nombre}  ${newUser.apellido}`
+            user: `${newUser.firstName} ${newUser.lastName}`
         });
     } catch (error) {
         return res.status(500).json({
@@ -80,7 +80,7 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { nombre, apellido, email, password} = req.body;
+        const { firstName, lastName, email, password} = req.body;
 
         const user = await User.findByPk(id);
 
@@ -97,13 +97,13 @@ export const updateUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         await user.update({
-            nombre,
-            apellido,
+            firstName,
+            lastName,
             email,
             password: hashedPassword,
         });
 
-        res.json(`Usuario actualizado: ${user.nombre} ${user.apellido}`);
+        res.json(`Usuario actualizado: ${user.firstName} ${user.lastName}`);
     } catch (error) {
         return res.status(500).json({ message: "Error al actualizar el usuario." });
     }
@@ -155,7 +155,7 @@ export const loginUser = async (req,res) => {
 
     const secretKey = 'programacion-3-2026';
 
-    const token = jwt.sign({ id: user.id, email, rol: user.rol }, secretKey, { expiresIn: '3h' });
+    const token = jwt.sign({ id: user.id, email, role: user.role }, secretKey, { expiresIn: '3h' });
 
     return res.json(token);
 

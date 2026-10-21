@@ -1,22 +1,22 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
 
-export const PurchaseOrder = sequelize.define("orden_de_compra", {
+export const PurchaseOrder = sequelize.define("purchase_order", {
     id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     },
-    fecha: {
+    date: {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: DataTypes.NOW,
     },
-    usuario_id: {
+    userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: "usuarios",
+            model: "users",
             key: "id",
         },
     },
@@ -27,4 +27,6 @@ export const PurchaseOrder = sequelize.define("orden_de_compra", {
             min: 0,
         },
     },
+}, {
+    tableName: "purchase_orders",
 });

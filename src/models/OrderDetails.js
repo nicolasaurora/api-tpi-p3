@@ -1,50 +1,51 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
 
-export const OrderDetails = sequelize.define("detalle_orden", {
+export const OrderDetails = sequelize.define("order_detail", {
     id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     },
-    cantidad: {
+    quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
             min: 1,
         }
     },
-    precio_unitario: {
+    unitPrice: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false,
         validate: {
             min: 0,
         }
     },
-    orden_de_compra_id: {
+    purchaseOrderId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: "orden_de_compras",
+            model: "purchase_orders",
             key: "id",
         },
     },
-    producto_id: {
+    productId: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: "productos",
+            model: "products",
             key: "id",
         },
     },
 },
 
-// Para evitar que el mismo producto se repita dos veces en la misma orden.
+// Prevents the same product from being included twice in one order.
 {
   indexes: [
     {
       unique: true,
-      fields: ["orden_de_compra_id", "producto_id"],
+      fields: ["purchaseOrderId", "productId"],
     },
   ],
+    tableName: "order_details",
 });

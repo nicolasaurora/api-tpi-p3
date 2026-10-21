@@ -5,13 +5,13 @@ import { verifyToken, verifyRole } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get('/ordenes', verifyToken, verifyRole("superadmin", "admin"), getPurchaseOrders);
+router.get('/orders', verifyToken, verifyRole("superadmin", "admin"), getPurchaseOrders);
 
-router.get('/ordenes/mis-ordenes', verifyToken, getMyPurchaseOrders);
+router.get('/orders/my-orders', verifyToken, getMyPurchaseOrders);
 
-router.get('/ordenes/:id', verifyToken, getPurchaseOrder);
+router.get('/orders/:id', verifyToken, getPurchaseOrder);
 
-router.post('/ordenes', verifyToken, createPurchaseOrder);
+router.post('/orders', verifyToken, createPurchaseOrder);
 
 
 

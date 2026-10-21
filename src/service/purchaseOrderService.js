@@ -11,7 +11,8 @@ export const getPurchaseOrders = async (req, res) => {
           include: [
             {
               model: User,
-              attributes: ["nombre", "apellido"],
+              as: "user",
+              attributes: ["firstName", "lastName"],
             },
           ],
         });
@@ -26,21 +27,21 @@ export const getPurchaseOrders = async (req, res) => {
 
 export const getMyPurchaseOrders = async (req, res) => {
   try {
-    const usuario_id = req.user.id;
+    const userId = req.user.id;
 
-    if (!usuario_id) {
+    if (!userId) {
       return res.status(401).json({
         message: "El token no contiene un usuario válido. Inicia sesión nuevamente."
       });
     }
 
-    const ordenes = await PurchaseOrder.findAll({
+    const orders = await PurchaseOrder.findAll({
       where: {
-        usuario_id: usuario_id
+        userId
       }
     });
 
-    return res.json(ordenes);
+    return res.json(orders);
     
   } catch (error) {
     return res.status(500).json({
@@ -58,15 +59,18 @@ export const getPurchaseOrder = async(req, res) => {
       include: [
         {
           model: User,
-          attributes: ["nombre", "apellido"],
+          as: "user",
+          attributes: ["firstName", "lastName"],
         },
         {
           model: OrderDetails,
-          attributes: ["cantidad", "precio_unitario"],
+          as: "orderDetails",
+          attributes: ["quantity", "unitPrice"],
           include: [
             {
               model: Product,
-              attributes: ["id", "nombre"],
+              as: "product",
+              attributes: ["id", "name", "image", "category"],
             }  
           ],
         }
@@ -79,11 +83,11 @@ export const getPurchaseOrder = async(req, res) => {
       });
     }
 
-    const esAdministrador = req.user.rol === "admin" || req.user.rol === "superadmin";
+    const isAdmin = req.user.role === "admin" || req.user.role === "superadmin";
 
-    const esPropietario = purchaseOrder.usuario_id === req.user.id;
+    const isOwner = purchaseOrder.userId === req.user.id;
 
-    if(!esAdministrador && !esPropietario) {
+    if (!isAdmin && !isOwner) {
       return res.status(403).send({
         message: "No tenés permiso para ver esta orden."
       });
@@ -101,9 +105,9 @@ export const getPurchaseOrder = async(req, res) => {
 
 export const createPurchaseOrder = async (req, res) => {
   const { items } = req.body;
-  const usuario_id = req.user.id;
+  const userId = req.user.id;
 
-  if (!usuario_id || !Array.isArray(items) || items.length === 0) {
+  if (!userId || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({
       message: "El usuario y al menos un producto son obligatorios.",
     });
@@ -114,7 +118,7 @@ export const createPurchaseOrder = async (req, res) => {
   try {
     transaction = await sequelize.transaction();
 
-    const user = await User.findByPk(usuario_id, { transaction });
+    const user = await User.findByPk(userId, { transaction });
 
     if (!user) {
       await transaction.rollback();
@@ -128,9 +132,9 @@ export const createPurchaseOrder = async (req, res) => {
     const details = [];
 
     for (const item of items) {
-      const { producto_id, cantidad } = item;
+      const { productId, quantity } = item;
 
-      if (!producto_id || !Number.isInteger(cantidad) || cantidad <= 0) {
+      if (!productId || !Number.isInteger(quantity) || quantity <= 0) {
 
         await transaction.rollback();
 
@@ -139,7 +143,7 @@ export const createPurchaseOrder = async (req, res) => {
         });
       }
 
-      const product = await Product.findByPk(producto_id, {
+      const product = await Product.findByPk(productId, {
         transaction,
       });
 
@@ -147,29 +151,29 @@ export const createPurchaseOrder = async (req, res) => {
         await transaction.rollback();
 
         return res.status(404).json({
-          message: `El producto con id ${producto_id} no existe.`,
+          message: `El producto con id ${productId} no existe.`,
         });
       }
 
-      if (product.stock < cantidad) {
+      if (product.stock < quantity) {
         await transaction.rollback();
 
         return res.status(400).json({
-          message: `Stock insuficiente para ${product.nombre}.`,
+          message: `Stock insuficiente para ${product.name}.`,
         });
       }
 
-      total += Number(product.precio) * cantidad;
+      total += Number(product.price) * quantity;
 
       details.push({
         product,
-        cantidad,
+        quantity,
       });
     }
 
     const purchaseOrder = await PurchaseOrder.create(
       {
-        usuario_id,
+        userId,
         total: total.toFixed(2),
       },
       { transaction }
@@ -178,17 +182,17 @@ export const createPurchaseOrder = async (req, res) => {
     for (const detail of details) {
       await OrderDetails.create(
         {
-          orden_de_compra_id: purchaseOrder.id,
-          producto_id: detail.product.id,
-          cantidad: detail.cantidad,
-          precio_unitario: detail.product.precio,
+          purchaseOrderId: purchaseOrder.id,
+          productId: detail.product.id,
+          quantity: detail.quantity,
+          unitPrice: detail.product.price,
         },
         { transaction }
       );
 
       await detail.product.update(
         {
-          stock: detail.product.stock - detail.cantidad,
+          stock: detail.product.stock - detail.quantity,
         },
         { transaction }
       );
@@ -198,7 +202,7 @@ export const createPurchaseOrder = async (req, res) => {
 
     return res.status(201).json({
       message: "Orden de compra creada correctamente.",
-      orden: purchaseOrder,
+      order: purchaseOrder,
     });
     
   } catch (error) {
