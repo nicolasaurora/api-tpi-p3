@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createUser, deleteUser, getUser, getUsers, updateUser, loginUser } from '../service/userService.js';
+import { createUser, deleteUser, getUser, getUsers, updateUser, loginUser, updateUserRole } from '../service/userService.js';
 import { verifyToken, verifyRole } from "../middleware/authMiddleware.js";
 
 const router = Router();
@@ -15,6 +15,8 @@ router.put("/users/:id", verifyToken, verifyRole("superadmin"), updateUser);
 router.delete("/users/:id", verifyToken, verifyRole("superadmin"), deleteUser);
 
 router.post("/login", loginUser);
+
+router.patch("/users/:id/role", verifyToken, verifyRole("superadmin"), updateUserRole);
 
 
 

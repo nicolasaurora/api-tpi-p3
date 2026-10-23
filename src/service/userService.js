@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 
+
 export const getUsers = async (req, res) => {
     try {
         const users = await User.findAll({
@@ -103,7 +104,7 @@ export const updateUser = async (req, res) => {
             password: hashedPassword,
         });
 
-        res.json(`Usuario actualizado: ${user.firstName} ${user.lastName}`);
+        res.send(`Usuario actualizado: ${user.firstName} ${user.lastName}`);
     } catch (error) {
         return res.status(500).json({ message: "Error al actualizar el usuario." });
     }
@@ -150,7 +151,7 @@ export const loginUser = async (req,res) => {
     if(!coincide) {
         return res.status(401).send({
             message: "Email y/o contraseña incorrecta."
-        })
+        });
     }
 
     const secretKey = 'programacion-3-2026';
@@ -159,4 +160,36 @@ export const loginUser = async (req,res) => {
 
     return res.json(token);
 
+}
+
+export const updateUserRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { role } = req.body;
+
+        const user = await User.findByPk(id);
+
+        if (!user) {
+            return res.status(404).send({
+                message: `El usuario no existe.`
+            });
+        }
+
+        if (!["superadmin", "admin", "user"].includes(role)) {
+            return res.status(400).send({
+                message: "El role debe ser valido."
+            });
+        }
+
+        await user.update({
+            role: role
+        });
+
+        res.send("Rol de usuario actualizado.");
+        
+    } catch (error) {
+        return res.status(500).send({
+            message: "Error al actualizar el rol."
+        });
+    }
 }
