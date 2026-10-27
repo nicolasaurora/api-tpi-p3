@@ -39,7 +39,7 @@ export const OrderDetails = sequelize.define("order_detail", {
     },
 },
 
-// Prevents the same product from being included twice in one order.
+//  Evita que el mismo producto se incluya dos veces en un mismo pedido.
 {
   indexes: [
     {

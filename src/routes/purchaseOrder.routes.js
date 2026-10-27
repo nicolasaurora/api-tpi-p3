@@ -11,7 +11,7 @@ router.get('/orders/my-orders', verifyToken, getMyPurchaseOrders);
 
 router.get('/orders/:id', verifyToken, getPurchaseOrder);
 
-router.post('/orders', verifyToken, createPurchaseOrder);
+router.post('/orders', verifyToken, verifyRole("user"), createPurchaseOrder);
 
 
 

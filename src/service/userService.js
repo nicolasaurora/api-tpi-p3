@@ -11,7 +11,7 @@ export const getUsers = async (req, res) => {
         });
         res.json(users);
     } catch (error) {
-        return res.status(500).send({ message: "Error al obtener usuarios." });
+        return res.status(500).json({ message: "Error al obtener usuarios." });
     }
 };
 
@@ -23,12 +23,12 @@ export const getUser = async (req, res) => {
         });
 
         if (!user) {
-            return res.status(404).send({ message: "Usuario no encontrado." });
+            return res.status(404).json({ message: "Usuario no encontrado." });
         }
 
         res.json(user);
     } catch (error) {
-        return res.status(500).send({ message: "Error al obtener el usuario." });
+        return res.status(500).json({ message: "Error al obtener el usuario." });
     }
 }
 
@@ -37,7 +37,7 @@ export const createUser = async (req, res) => {
         const { firstName, lastName, email, password } = req.body;
 
         if (!firstName || !lastName || !email || !password ) {
-           return res.status(400).send({ 
+           return res.status(400).json({ 
             message: "El nombre, apellido, email y password son datos obligatorios." 
             });
         }
@@ -104,7 +104,7 @@ export const updateUser = async (req, res) => {
             password: hashedPassword,
         });
 
-        res.send(`Usuario actualizado: ${user.firstName} ${user.lastName}`);
+        res.json(`Usuario actualizado: ${user.firstName} ${user.lastName}`);
     } catch (error) {
         return res.status(500).json({ message: "Error al actualizar el usuario." });
     }
@@ -141,7 +141,7 @@ export const loginUser = async (req,res) => {
     });
 
     if(!user) {
-        return res.status(401).send({
+        return res.status(401).json({
             message: "Usuario no existente."
         });
     }
@@ -149,7 +149,7 @@ export const loginUser = async (req,res) => {
     const coincide = await bcrypt.compare(password, user.password);
 
     if(!coincide) {
-        return res.status(401).send({
+        return res.status(401).json({
             message: "Email y/o contraseña incorrecta."
         });
     }
@@ -170,13 +170,13 @@ export const updateUserRole = async (req, res) => {
         const user = await User.findByPk(id);
 
         if (!user) {
-            return res.status(404).send({
+            return res.status(404).json({
                 message: `El usuario no existe.`
             });
         }
 
         if (!["superadmin", "admin", "user"].includes(role)) {
-            return res.status(400).send({
+            return res.status(400).json({
                 message: "El role debe ser valido."
             });
         }
@@ -185,10 +185,10 @@ export const updateUserRole = async (req, res) => {
             role: role
         });
 
-        res.send("Rol de usuario actualizado.");
+        res.json("Rol de usuario actualizado.");
         
     } catch (error) {
-        return res.status(500).send({
+        return res.status(500).json({
             message: "Error al actualizar el rol."
         });
     }
